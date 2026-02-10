@@ -46,6 +46,7 @@ func main() {
 	e.Use(middleware.Recover())
 	e.Use(middleware.Logger())
 	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+		ContextKey:     "csrf",
 		TokenLookup:    "form:_csrf,header:X-CSRF-Token",
 		CookieName:     "_csrf",
 		CookiePath:     "/",

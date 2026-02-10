@@ -39,12 +39,19 @@ func NewHandler(cfg *config.Config, cf *coredns.CorefileManager, hm *coredns.Hos
 	}
 }
 
+func csrfToken(c echo.Context) string {
+	if token, ok := c.Get("csrf").(string); ok {
+		return token
+	}
+	return ""
+}
+
 func (h *Handler) page(c echo.Context, title, nav string, data interface{}) PageData {
 	pd := PageData{
 		Title:         title,
 		ActiveNav:     nav,
 		Authenticated: c.Get("authenticated") != nil,
-		CSRFToken:     c.Get("csrf").(string),
+		CSRFToken:     csrfToken(c),
 		Data:          data,
 	}
 

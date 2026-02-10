@@ -17,7 +17,7 @@ func (h *Handler) LoginPage(c echo.Context) error {
 
 	pd := PageData{
 		Title:     "Login",
-		CSRFToken: c.Get("csrf").(string),
+		CSRFToken: csrfToken(c),
 	}
 	return c.Render(http.StatusOK, "login", pd)
 }
@@ -27,7 +27,7 @@ func (h *Handler) LoginSubmit(c echo.Context) error {
 	if password == "" || !auth.VerifyPassword(password, h.Config.MasterPasswordHash) {
 		pd := PageData{
 			Title:      "Login",
-			CSRFToken:  c.Get("csrf").(string),
+			CSRFToken:  csrfToken(c),
 			FlashError: "Invalid password",
 		}
 		return c.Render(http.StatusUnauthorized, "login", pd)
@@ -37,7 +37,7 @@ func (h *Handler) LoginSubmit(c echo.Context) error {
 	if err != nil {
 		pd := PageData{
 			Title:      "Login",
-			CSRFToken:  c.Get("csrf").(string),
+			CSRFToken:  csrfToken(c),
 			FlashError: "Failed to create session",
 		}
 		return c.Render(http.StatusInternalServerError, "login", pd)
