@@ -20,7 +20,6 @@
                     <div class="text-body-secondary mt-2"><small>Container: {{$d.ContainerID}}</small></div>
                 {{else if $d.DockerOK}}
                     <span class="badge bg-danger fs-6"><i class="bi bi-x-circle"></i> Not Found</span>
-                    <div class="text-body-secondary mt-2"><small>Container not found</small></div>
                 {{else}}
                     <span class="badge bg-secondary fs-6"><i class="bi bi-question-circle"></i> Unknown</span>
                     <div class="text-body-secondary mt-2"><small>Docker unavailable</small></div>
@@ -48,10 +47,10 @@
     <div class="col-md-4">
         <div class="card h-100">
             <div class="card-body">
-                <h6 class="card-subtitle mb-2 text-body-secondary">Host Files</h6>
+                <h6 class="card-subtitle mb-2 text-body-secondary">DNS Zones</h6>
                 <span class="fs-4 fw-bold">{{$d.HostFileCount}}</span>
                 <div class="mt-2">
-                    <a href="/hosts" class="btn btn-sm btn-outline-primary"><i class="bi bi-list-ul"></i> Manage</a>
+                    <a href="/hosts" class="btn btn-sm btn-outline-primary"><i class="bi bi-globe2"></i> Manage</a>
                     <a href="/hosts/new" class="btn btn-sm btn-outline-success"><i class="bi bi-plus"></i> New</a>
                 </div>
             </div>
@@ -72,6 +71,7 @@
                         <i class="bi bi-arrow-clockwise"></i> Reload CoreDNS
                     </button>
                 </form>
+                <a href="/dig" class="btn btn-outline-info ms-2"><i class="bi bi-search"></i> DNS Lookup</a>
                 {{if not $d.DockerOK}}
                 <div class="text-body-secondary mt-2"><small>Docker socket not available — reload disabled</small></div>
                 {{end}}
@@ -81,7 +81,7 @@
 
     <div class="col-md-6">
         <div class="card">
-            <div class="card-header"><i class="bi bi-list-ul"></i> Host Files</div>
+            <div class="card-header"><i class="bi bi-globe2"></i> DNS Zones</div>
             <div class="card-body">
                 {{if $d.HostFiles}}
                 <ul class="list-group list-group-flush">
@@ -92,7 +92,7 @@
                     {{end}}
                 </ul>
                 {{else}}
-                <p class="text-body-secondary mb-0">No host files yet. <a href="/hosts/new">Create one</a>.</p>
+                <p class="text-body-secondary mb-0">No DNS zones yet. <a href="/hosts/new">Create one</a>.</p>
                 {{end}}
             </div>
         </div>

@@ -4,58 +4,40 @@
 
 {{define "content"}}
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="mb-0"><i class="bi bi-plus-lg"></i> New Host File</h4>
+    <h4 class="mb-0"><i class="bi bi-plus-lg"></i> New DNS Zone</h4>
     <a href="/hosts" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Back</a>
 </div>
 
-<form id="hosts-form">
-    <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
-    <div class="mb-3">
-        <label for="domain" class="form-label">Domain (filename)</label>
-        <input type="text" class="form-control" id="domain" name="domain" placeholder="hosts.example.com" required pattern="[a-zA-Z0-9][a-zA-Z0-9.\-]*[a-zA-Z0-9]">
-        <div class="form-text">Used as filename in the hosts directory. E.g., <code>hosts.example.com</code></div>
+<div class="card" style="max-width: 500px;">
+    <div class="card-body">
+        <form id="new-zone-form">
+            <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
+            <div class="mb-3">
+                <label for="domain" class="form-label">Domain name</label>
+                <div class="input-group">
+                    <span class="input-group-text">hosts.</span>
+                    <input type="text" class="form-control" id="domain" name="domain" placeholder="example.com" required pattern="[a-zA-Z0-9][a-zA-Z0-9.\-]*[a-zA-Z0-9]">
+                </div>
+                <div class="form-text">Creates a host file named <code>hosts.&lt;domain&gt;</code></div>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="createZone()">
+                <i class="bi bi-plus-lg"></i> Create Zone
+            </button>
+        </form>
     </div>
-    <div class="mb-3">
-        <label for="content" class="form-label">Host Entries</label>
-        <textarea class="form-control editor-textarea" id="content" name="content" rows="15" spellcheck="false" placeholder="# hosts.example.com
-192.168.1.10  app.example.com
-192.168.1.11  api.example.com"></textarea>
-    </div>
-
-    <div class="d-flex gap-2 mb-3">
-        <button type="button" class="btn btn-outline-info"
-            hx-post="/hosts/new/preview"
-            hx-include="[name='content'],[name='domain'],[name='_csrf']"
-            hx-target="#preview-area"
-            hx-swap="innerHTML">
-            <i class="bi bi-eye"></i> Preview
-        </button>
-        <button type="button" class="btn btn-primary" onclick="saveHosts(false)">
-            <i class="bi bi-floppy"></i> Save
-        </button>
-        <button type="button" class="btn btn-success" onclick="saveHosts(true)">
-            <i class="bi bi-floppy"></i> Save &amp; Reload
-        </button>
-    </div>
-</form>
-
-<div id="preview-area" class="mb-3"></div>
+</div>
 
 <form id="save-form" method="POST" action="" style="display:none;">
     <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
     <input type="hidden" name="domain" id="save-domain">
-    <input type="hidden" name="content" id="save-content">
-    <input type="hidden" name="reload" id="save-reload">
+    <input type="hidden" name="content" value="# DNS records">
 </form>
 
 <script>
-function saveHosts(reload) {
+function createZone() {
     var domain = document.getElementById('domain').value.trim();
     if (!domain) { alert('Domain is required'); return; }
-    var content = document.getElementById('content').value;
     document.getElementById('save-domain').value = domain;
-    document.getElementById('save-content').value = content;
-    document.getElementById('save-reload').value = reload ? 'true' : 'false';
     var form = document.getElementById('save-form');
     form.action = '/hosts/' + encodeURIComponent(domain) + '/save';
     form.submit();

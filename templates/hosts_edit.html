@@ -5,54 +5,102 @@
 {{define "content"}}
 {{$d := .Data}}
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="mb-0"><i class="bi bi-file-earmark-text"></i> {{$d.Domain}}</h4>
-    <a href="/hosts" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Back</a>
+    <h4 class="mb-0"><i class="bi bi-globe2"></i> {{$d.Domain}}</h4>
+    <div>
+        <a href="/hosts" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Back</a>
+        <form method="POST" action="/reload" class="d-inline ms-1">
+            <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
+            <button type="submit" class="btn btn-warning btn-sm"><i class="bi bi-arrow-clockwise"></i> Reload CoreDNS</button>
+        </form>
+    </div>
 </div>
 
-<form id="hosts-form">
-    <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
-    <div class="mb-3">
-        <textarea class="form-control editor-textarea" name="content" rows="15" spellcheck="false">{{$d.Content}}</textarea>
+<!-- Add Record Form -->
+<div class="card mb-3">
+    <div class="card-header"><i class="bi bi-plus-circle"></i> Add Record</div>
+    <div class="card-body">
+        <form class="row g-2 align-items-end"
+            hx-post="/hosts/{{$d.Domain}}/entry/add"
+            hx-target="#records-container"
+            hx-swap="innerHTML"
+            hx-on::after-request="if(event.detail.successful) this.reset()">
+            <input type="hidden" name="_csrf" value="{{$d.CSRFToken}}">
+            <div class="col-auto">
+                <label class="form-label mb-1 small text-body-secondary">Type</label>
+                <select class="form-select form-select-sm" style="width:80px" disabled>
+                    <option>A</option>
+                </select>
+            </div>
+            <div class="col">
+                <label class="form-label mb-1 small text-body-secondary">Hostname</label>
+                <input type="text" class="form-control form-control-sm" name="hostname" placeholder="app.{{$d.Domain}}" required>
+            </div>
+            <div class="col">
+                <label class="form-label mb-1 small text-body-secondary">IP Address</label>
+                <input type="text" class="form-control form-control-sm" name="ip" placeholder="192.168.1.10" required>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Add</button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <div class="d-flex gap-2 mb-3">
-        <button type="button" class="btn btn-outline-info"
-            hx-post="/hosts/{{$d.Domain}}/preview"
-            hx-include="[name='content'],[name='_csrf']"
-            hx-target="#preview-area"
-            hx-swap="innerHTML">
-            <i class="bi bi-eye"></i> Preview Changes
-        </button>
-        <button type="button" class="btn btn-primary" onclick="saveHosts(false)">
-            <i class="bi bi-floppy"></i> Save
-        </button>
-        <button type="button" class="btn btn-success" onclick="saveHosts(true)">
-            <i class="bi bi-floppy"></i> Save &amp; Reload
-        </button>
-        <button type="button" class="btn btn-outline-danger ms-auto" data-bs-toggle="modal" data-bs-target="#deleteModal">
-            <i class="bi bi-trash"></i> Delete
-        </button>
+<!-- Records Table -->
+<div id="records-container">
+{{template "records_table" $d}}
+</div>
+
+<!-- Raw Editor (collapsible) -->
+<div class="mt-3">
+    <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#raw-editor">
+        <i class="bi bi-code-slash"></i> Raw Editor
+    </button>
+    <div class="collapse mt-2" id="raw-editor">
+        <div class="card">
+            <div class="card-body">
+                <form id="raw-form">
+                    <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
+                    <textarea class="form-control editor-textarea mb-2" name="content" rows="10" spellcheck="false">{{$d.Raw}}</textarea>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-info btn-sm"
+                            hx-post="/hosts/{{$d.Domain}}/preview"
+                            hx-include="[name='content']"
+                            hx-target="#preview-area"
+                            hx-swap="innerHTML">
+                            <i class="bi bi-eye"></i> Preview
+                        </button>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="saveRaw(false)">
+                            <i class="bi bi-floppy"></i> Save
+                        </button>
+                        <button type="button" class="btn btn-success btn-sm" onclick="saveRaw(true)">
+                            <i class="bi bi-floppy"></i> Save &amp; Reload
+                        </button>
+                    </div>
+                </form>
+                <div id="preview-area" class="mt-2"></div>
+            </div>
+        </div>
     </div>
-</form>
+</div>
 
-<div id="preview-area" class="mb-3"></div>
-
-<form id="save-form" method="POST" action="/hosts/{{$d.Domain}}/save" style="display:none;">
-    <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
-    <input type="hidden" name="content" id="save-content">
-    <input type="hidden" name="reload" id="save-reload">
-</form>
+<!-- Delete Zone -->
+<div class="mt-3 pt-3 border-top">
+    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal">
+        <i class="bi bi-trash"></i> Delete Zone
+    </button>
+</div>
 
 <!-- Delete Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Delete Host File</h5>
+                <h5 class="modal-title">Delete DNS Zone</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                Are you sure you want to delete <strong>{{$d.Domain}}</strong>? This action cannot be undone.
+                Are you sure you want to delete <strong>{{$d.Domain}}</strong>? This removes the host file and all its records.
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -65,12 +113,19 @@
     </div>
 </div>
 
+<form id="save-raw-form" method="POST" action="/hosts/{{$d.Domain}}/save" style="display:none;">
+    <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
+    <input type="hidden" name="content" id="save-content">
+    <input type="hidden" name="reload" id="save-reload">
+</form>
+
 <script>
-function saveHosts(reload) {
-    var content = document.querySelector('#hosts-form textarea[name="content"]').value;
+function saveRaw(reload) {
+    var content = document.querySelector('#raw-form textarea[name="content"]').value;
     document.getElementById('save-content').value = content;
     document.getElementById('save-reload').value = reload ? 'true' : 'false';
-    document.getElementById('save-form').submit();
+    document.getElementById('save-raw-form').submit();
 }
 </script>
 {{end}}
+

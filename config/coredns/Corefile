@@ -1,5 +1,5 @@
 . {
-    hosts /etc/coredns/hosts/hosts.example.com {
+    hosts /etc/coredns/hosts.example.com {
         fallthrough
     }
 

@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"golang.org/x/crypto/bcrypt"
@@ -25,7 +26,8 @@ func Load() (*Config, error) {
 
 	hostsDir := os.Getenv("HOSTS_DIR")
 	if hostsDir == "" {
-		return nil, fmt.Errorf("HOSTS_DIR is required")
+		// Default to same directory as the Corefile
+		hostsDir = filepath.Dir(corefilePath)
 	}
 	if !strings.HasSuffix(hostsDir, "/") {
 		hostsDir += "/"

@@ -1,0 +1,38 @@
+{{define "records_table"}}
+{{if .Entries}}
+<div class="table-responsive">
+    <table class="table table-hover mb-0">
+        <thead>
+            <tr>
+                <th style="width:70px">Type</th>
+                <th>Name</th>
+                <th>Content</th>
+                <th style="width:70px"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Entries}}
+            <tr>
+                <td>{{if isIPv6 .IP}}<span class="badge bg-info">AAAA</span>{{else}}<span class="badge bg-primary">A</span>{{end}}</td>
+                <td><code>{{.Hostname}}</code></td>
+                <td><code>{{.IP}}</code></td>
+                <td>
+                    <form hx-post="/hosts/{{$.Domain}}/entry/delete" hx-target="#records-container" hx-swap="innerHTML" hx-confirm="Delete {{.Hostname}}?">
+                        <input type="hidden" name="_csrf" value="{{$.CSRFToken}}">
+                        <input type="hidden" name="ip" value="{{.IP}}">
+                        <input type="hidden" name="hostname" value="{{.Hostname}}">
+                        <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-1"><i class="bi bi-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+</div>
+{{else}}
+<div class="text-center py-4 text-body-secondary">
+    <i class="bi bi-inbox fs-1"></i>
+    <p class="mt-2 mb-0">No records yet. Add one above.</p>
+</div>
+{{end}}
+{{end}}

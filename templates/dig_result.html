@@ -1,0 +1,37 @@
+{{define "dig_result"}}
+{{if .Error}}
+<div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle"></i> {{.Error}}
+</div>
+{{else if .Results}}
+<div class="card">
+    <div class="card-header">
+        <small class="text-body-secondary">Query: <code>{{.Query}}</code> {{.Type}} @ <code>{{.Server}}</code></small>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th style="width:70px">Type</th>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Results}}
+                <tr>
+                    <td><span class="badge bg-primary">{{.Type}}</span></td>
+                    <td><code>{{.Name}}</code></td>
+                    <td><code>{{.Value}}</code></td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</div>
+{{else}}
+<div class="alert alert-info">
+    <i class="bi bi-info-circle"></i> No results found.
+</div>
+{{end}}
+{{end}}

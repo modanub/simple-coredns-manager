@@ -85,6 +85,10 @@ func main() {
 	authed.POST("/hosts/:domain/preview", h.HostsPreview)
 	authed.POST("/hosts/:domain/save", h.HostsSave)
 	authed.POST("/hosts/:domain/delete", h.HostsDelete)
+	authed.POST("/hosts/:domain/entry/add", h.HostsAddEntry)
+	authed.POST("/hosts/:domain/entry/delete", h.HostsRemoveEntry)
+	authed.GET("/dig", h.DigPage)
+	authed.POST("/dig", h.DigQuery)
 	authed.POST("/reload", h.Reload)
 
 	e.Logger.Fatal(e.Start(":" + cfg.Port))

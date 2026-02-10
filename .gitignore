@@ -20,3 +20,6 @@ Thumbs.db
 
 # Environment
 .env
+internal/config/CLAUDE.md
+internal/handlers/CLAUDE.md
+**/CLAUDE.md

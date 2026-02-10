@@ -18,7 +18,6 @@ services:
       - "8080:8080"
     environment:
       - COREFILE_PATH=/etc/coredns/Corefile
-      - HOSTS_DIR=/etc/coredns/hosts/
       - MASTER_PASSWORD=changeme
       - JWT_SECRET=change-this-secret
       - COREDNS_CONTAINER_NAME=coredns

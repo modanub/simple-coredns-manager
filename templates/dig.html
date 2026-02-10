@@ -1,0 +1,47 @@
+{{define "dig"}}
+{{template "base" .}}
+{{end}}
+
+{{define "content"}}
+{{$d := .Data}}
+<h4 class="mb-4"><i class="bi bi-search"></i> DNS Lookup</h4>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form class="row g-2 align-items-end"
+            hx-post="/dig"
+            hx-target="#dig-results"
+            hx-swap="innerHTML"
+            hx-indicator="#dig-spinner">
+            <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
+            <div class="col-md">
+                <label class="form-label mb-1 small text-body-secondary">Hostname</label>
+                <input type="text" class="form-control" name="query" placeholder="app.example.com" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label mb-1 small text-body-secondary">Type</label>
+                <select class="form-select" name="type">
+                    <option value="A" selected>A</option>
+                    <option value="AAAA">AAAA</option>
+                    <option value="CNAME">CNAME</option>
+                    <option value="MX">MX</option>
+                    <option value="TXT">TXT</option>
+                    <option value="NS">NS</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label mb-1 small text-body-secondary">DNS Server</label>
+                <input type="text" class="form-control" name="server" value="{{$d.Server}}" placeholder="coredns:53">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i> Lookup
+                </button>
+                <span id="dig-spinner" class="htmx-indicator spinner-border spinner-border-sm ms-2"></span>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="dig-results"></div>
+{{end}}

@@ -14,7 +14,10 @@
                     <a class="nav-link{{if eq .ActiveNav "corefile"}} active{{end}}" href="/corefile"><i class="bi bi-file-earmark-code"></i> Corefile</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link{{if eq .ActiveNav "hosts"}} active{{end}}" href="/hosts"><i class="bi bi-list-ul"></i> Host Files</a>
+                    <a class="nav-link{{if eq .ActiveNav "hosts"}} active{{end}}" href="/hosts"><i class="bi bi-globe2"></i> DNS Records</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link{{if eq .ActiveNav "dig"}} active{{end}}" href="/dig"><i class="bi bi-search"></i> DNS Lookup</a>
                 </li>
             </ul>
             <form method="POST" action="/logout" class="d-inline">
