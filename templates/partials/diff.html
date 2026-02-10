@@ -1,0 +1,13 @@
+{{define "diff"}}
+{{if .DiffContent}}
+<pre class="diff-block p-3 rounded bg-dark border"><code>{{range splitLines .DiffContent}}{{if hasPrefix . "+++"}}
+<span class="diff-header">{{.}}</span>{{else if hasPrefix . "---"}}
+<span class="diff-header">{{.}}</span>{{else if hasPrefix . "@@"}}
+<span class="diff-hunk">{{.}}</span>{{else if hasPrefix . "+"}}
+<span class="diff-add">{{.}}</span>{{else if hasPrefix . "-"}}
+<span class="diff-del">{{.}}</span>{{else}}
+<span>{{.}}</span>{{end}}{{end}}</code></pre>
+{{else}}
+<div class="alert alert-info"><i class="bi bi-info-circle"></i> No changes detected.</div>
+{{end}}
+{{end}}

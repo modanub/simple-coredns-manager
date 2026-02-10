@@ -1,0 +1,76 @@
+{{define "hosts_edit"}}
+{{template "base" .}}
+{{end}}
+
+{{define "content"}}
+{{$d := .Data}}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-file-earmark-text"></i> {{$d.Domain}}</h4>
+    <a href="/hosts" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Back</a>
+</div>
+
+<form id="hosts-form">
+    <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
+    <div class="mb-3">
+        <textarea class="form-control editor-textarea" name="content" rows="15" spellcheck="false">{{$d.Content}}</textarea>
+    </div>
+
+    <div class="d-flex gap-2 mb-3">
+        <button type="button" class="btn btn-outline-info"
+            hx-post="/hosts/{{$d.Domain}}/preview"
+            hx-include="[name='content'],[name='_csrf']"
+            hx-target="#preview-area"
+            hx-swap="innerHTML">
+            <i class="bi bi-eye"></i> Preview Changes
+        </button>
+        <button type="button" class="btn btn-primary" onclick="saveHosts(false)">
+            <i class="bi bi-floppy"></i> Save
+        </button>
+        <button type="button" class="btn btn-success" onclick="saveHosts(true)">
+            <i class="bi bi-floppy"></i> Save &amp; Reload
+        </button>
+        <button type="button" class="btn btn-outline-danger ms-auto" data-bs-toggle="modal" data-bs-target="#deleteModal">
+            <i class="bi bi-trash"></i> Delete
+        </button>
+    </div>
+</form>
+
+<div id="preview-area" class="mb-3"></div>
+
+<form id="save-form" method="POST" action="/hosts/{{$d.Domain}}/save" style="display:none;">
+    <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
+    <input type="hidden" name="content" id="save-content">
+    <input type="hidden" name="reload" id="save-reload">
+</form>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Host File</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete <strong>{{$d.Domain}}</strong>? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="/hosts/{{$d.Domain}}/delete" class="d-inline">
+                    <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function saveHosts(reload) {
+    var content = document.querySelector('#hosts-form textarea[name="content"]').value;
+    document.getElementById('save-content').value = content;
+    document.getElementById('save-reload').value = reload ? 'true' : 'false';
+    document.getElementById('save-form').submit();
+}
+</script>
+{{end}}

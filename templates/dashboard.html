@@ -1,0 +1,101 @@
+{{define "dashboard"}}
+{{template "base" .}}
+{{end}}
+
+{{define "content"}}
+{{$d := .Data}}
+<h4 class="mb-4"><i class="bi bi-speedometer2"></i> Dashboard</h4>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-body-secondary">CoreDNS Status</h6>
+                {{if and $d.DockerOK (ne $d.ContainerID "")}}
+                    {{if eq $d.CoreDNSStatus "running"}}
+                        <span class="badge bg-success fs-6"><i class="bi bi-check-circle"></i> Running</span>
+                    {{else}}
+                        <span class="badge bg-warning fs-6"><i class="bi bi-exclamation-circle"></i> {{$d.CoreDNSStatus}}</span>
+                    {{end}}
+                    <div class="text-body-secondary mt-2"><small>Container: {{$d.ContainerID}}</small></div>
+                {{else if $d.DockerOK}}
+                    <span class="badge bg-danger fs-6"><i class="bi bi-x-circle"></i> Not Found</span>
+                    <div class="text-body-secondary mt-2"><small>Container not found</small></div>
+                {{else}}
+                    <span class="badge bg-secondary fs-6"><i class="bi bi-question-circle"></i> Unknown</span>
+                    <div class="text-body-secondary mt-2"><small>Docker unavailable</small></div>
+                {{end}}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-body-secondary">Corefile</h6>
+                {{if $d.CorefileExists}}
+                    <span class="badge bg-success fs-6"><i class="bi bi-file-earmark-check"></i> Present</span>
+                {{else}}
+                    <span class="badge bg-danger fs-6"><i class="bi bi-file-earmark-x"></i> Missing</span>
+                {{end}}
+                <div class="mt-2">
+                    <a href="/corefile" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i> Edit</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-body-secondary">Host Files</h6>
+                <span class="fs-4 fw-bold">{{$d.HostFileCount}}</span>
+                <div class="mt-2">
+                    <a href="/hosts" class="btn btn-sm btn-outline-primary"><i class="bi bi-list-ul"></i> Manage</a>
+                    <a href="/hosts/new" class="btn btn-sm btn-outline-success"><i class="bi bi-plus"></i> New</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-arrow-clockwise"></i> Quick Actions</span>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="/reload" class="d-inline">
+                    <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
+                    <button type="submit" class="btn btn-warning" {{if not $d.DockerOK}}disabled{{end}}>
+                        <i class="bi bi-arrow-clockwise"></i> Reload CoreDNS
+                    </button>
+                </form>
+                {{if not $d.DockerOK}}
+                <div class="text-body-secondary mt-2"><small>Docker socket not available — reload disabled</small></div>
+                {{end}}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-list-ul"></i> Host Files</div>
+            <div class="card-body">
+                {{if $d.HostFiles}}
+                <ul class="list-group list-group-flush">
+                    {{range $d.HostFiles}}
+                    <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
+                        <a href="/hosts/{{.}}">{{.}}</a>
+                    </li>
+                    {{end}}
+                </ul>
+                {{else}}
+                <p class="text-body-secondary mb-0">No host files yet. <a href="/hosts/new">Create one</a>.</p>
+                {{end}}
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}

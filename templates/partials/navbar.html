@@ -1,0 +1,27 @@
+{{define "navbar"}}
+<nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom mb-3">
+    <div class="container-fluid" style="max-width: 1200px;">
+        <a class="navbar-brand" href="/"><i class="bi bi-hdd-network"></i> CoreDNS Manager</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link{{if eq .ActiveNav "dashboard"}} active{{end}}" href="/"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link{{if eq .ActiveNav "corefile"}} active{{end}}" href="/corefile"><i class="bi bi-file-earmark-code"></i> Corefile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link{{if eq .ActiveNav "hosts"}} active{{end}}" href="/hosts"><i class="bi bi-list-ul"></i> Host Files</a>
+                </li>
+            </ul>
+            <form method="POST" action="/logout" class="d-inline">
+                {{if .CSRFToken}}<input type="hidden" name="_csrf" value="{{.CSRFToken}}">{{end}}
+                <button type="submit" class="btn btn-outline-secondary btn-sm"><i class="bi bi-box-arrow-right"></i> Logout</button>
+            </form>
+        </div>
+    </div>
+</nav>
+{{end}}

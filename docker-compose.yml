@@ -1,0 +1,29 @@
+services:
+  coredns:
+    image: coredns/coredns:latest
+    container_name: coredns
+    restart: unless-stopped
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    volumes:
+      - ./config/coredns:/etc/coredns
+    command: -conf /etc/coredns/Corefile
+
+  coredns-manager:
+    build: .
+    container_name: coredns-manager
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - COREFILE_PATH=/etc/coredns/Corefile
+      - HOSTS_DIR=/etc/coredns/hosts/
+      - MASTER_PASSWORD=changeme
+      - JWT_SECRET=change-this-secret
+      - COREDNS_CONTAINER_NAME=coredns
+    volumes:
+      - ./config/coredns:/etc/coredns
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - coredns
