@@ -39,6 +39,16 @@ func NewRenderer(templatesDir string) (*Renderer, error) {
 				return "dark"
 			}
 		},
+		"map": func(pairs ...interface{}) map[string]interface{} {
+			m := make(map[string]interface{})
+			for i := 0; i+1 < len(pairs); i += 2 {
+				key, ok := pairs[i].(string)
+				if ok {
+					m[key] = pairs[i+1]
+				}
+			}
+			return m
+		},
 	}
 
 	// Parse shared templates (base + partials)

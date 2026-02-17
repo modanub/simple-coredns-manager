@@ -15,6 +15,7 @@ type Handler struct {
 	Config   *config.Config
 	Corefile *coredns.CorefileManager
 	Zones    *coredns.ZoneManager
+	GSLB     *coredns.GSLBManager
 	Docker   *docker.Client
 	mu       sync.RWMutex
 }
@@ -30,11 +31,12 @@ type PageData struct {
 	Data          interface{}
 }
 
-func NewHandler(cfg *config.Config, cf *coredns.CorefileManager, zm *coredns.ZoneManager, dc *docker.Client) *Handler {
+func NewHandler(cfg *config.Config, cf *coredns.CorefileManager, zm *coredns.ZoneManager, gm *coredns.GSLBManager, dc *docker.Client) *Handler {
 	return &Handler{
 		Config:   cfg,
 		Corefile: cf,
 		Zones:    zm,
+		GSLB:     gm,
 		Docker:   dc,
 	}
 }

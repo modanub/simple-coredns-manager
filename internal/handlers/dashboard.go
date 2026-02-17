@@ -7,12 +7,14 @@ import (
 )
 
 type DashboardData struct {
-	CoreDNSStatus  string
-	ContainerID    string
-	DockerOK       bool
-	ZoneFileCount  int
-	ZoneFiles      []string
-	CorefileExists bool
+	CoreDNSStatus    string
+	ContainerID      string
+	DockerOK         bool
+	ZoneFileCount    int
+	ZoneFiles        []string
+	CorefileExists   bool
+	GSLBZoneCount    int
+	GSLBBackendCount int
 }
 
 func (h *Handler) Dashboard(c echo.Context) error {
@@ -43,6 +45,17 @@ func (h *Handler) Dashboard(c echo.Context) error {
 	if err == nil {
 		dd.ZoneFiles = zones
 		dd.ZoneFileCount = len(zones)
+	}
+
+	// List GSLB zones
+	h.mu.RLock()
+	gslbEntries, err := h.GSLB.List()
+	h.mu.RUnlock()
+	if err == nil {
+		dd.GSLBZoneCount = len(gslbEntries)
+		for _, e := range gslbEntries {
+			dd.GSLBBackendCount += e.BackendCount
+		}
 	}
 
 	pd := h.page(c, "Dashboard", "dashboard", dd)

@@ -1,14 +1,15 @@
 services:
   coredns:
-    image: coredns/coredns:latest
+    image: dmachard/coredns_gslb:latest
     container_name: coredns
     restart: unless-stopped
     ports:
       - "53:53/udp"
       - "53:53/tcp"
+      - "9153:9153"
     volumes:
       - ./config/coredns:/etc/coredns
-    command: -conf /etc/coredns/Corefile
+    command: ["-conf", "/etc/coredns/Corefile"]
 
   coredns-manager:
     build: .
@@ -19,6 +20,7 @@ services:
     environment:
       - COREFILE_PATH=/etc/coredns/Corefile
       - ZONE_DIR=/etc/coredns
+      - GSLB_DIR=/etc/coredns
       - MASTER_PASSWORD=changeme
       - JWT_SECRET=change-this-secret
       - COREDNS_CONTAINER_NAME=coredns

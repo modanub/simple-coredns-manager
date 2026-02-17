@@ -5,9 +5,20 @@ example.com {
     reload 10s
 }
 
+gslb.example.com {
+    file /etc/coredns/db.gslb.example.com gslb.example.com
+    gslb {
+        zone gslb.example.com. /etc/coredns/db.gslb.example.com.yml
+    }
+    log
+    errors
+    reload 10s
+}
+
 . {
     forward . 8.8.8.8 8.8.4.4
     cache 30
     log
     errors
+    prometheus
 }

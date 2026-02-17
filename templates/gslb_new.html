@@ -1,0 +1,24 @@
+{{define "gslb_new"}}
+{{template "base" .}}
+{{end}}
+
+{{define "content"}}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-diagram-3"></i> New GSLB Zone</h4>
+    <a href="/gslb" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Back</a>
+</div>
+
+<div class="card" style="max-width: 500px;">
+    <div class="card-body">
+        <form method="POST" action="/gslb/create">
+            <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
+            <div class="mb-3">
+                <label for="domain" class="form-label">Domain</label>
+                <input type="text" class="form-control" id="domain" name="domain" placeholder="gslb.example.com" required autofocus>
+                <div class="form-text">A GSLB YAML config and default record will be created.</div>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Create GSLB Zone</button>
+        </form>
+    </div>
+</div>
+{{end}}

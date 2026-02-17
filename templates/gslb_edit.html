@@ -1,0 +1,242 @@
+{{define "gslb_edit"}}
+{{template "base" .}}
+{{end}}
+
+{{define "content"}}
+{{$d := .Data}}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-diagram-3"></i> {{$d.Domain}}</h4>
+    <div>
+        <a href="/gslb" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Back</a>
+        <form method="POST" action="/reload" class="d-inline ms-1">
+            <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
+            <button type="submit" class="btn btn-warning btn-sm"><i class="bi bi-arrow-clockwise"></i> Reload CoreDNS</button>
+        </form>
+    </div>
+</div>
+
+<!-- Healthcheck Profiles Summary -->
+{{if $d.Config.HealthcheckProfiles}}
+<div class="card mb-3">
+    <div class="card-header"><i class="bi bi-heart-pulse"></i> Health Check Profiles</div>
+    <div class="card-body py-2">
+        {{range $name, $profile := $d.Config.HealthcheckProfiles}}
+        <span class="badge bg-secondary me-1"><i class="bi bi-heart-pulse"></i> {{$name}} ({{$profile.Type}})</span>
+        {{end}}
+    </div>
+</div>
+{{end}}
+
+<!-- Add New Record -->
+<div class="card mb-3">
+    <div class="card-header"><i class="bi bi-plus-circle"></i> Add GSLB Record</div>
+    <div class="card-body">
+        <form class="row g-2 align-items-end" method="POST" action="/gslb/{{$d.Domain}}/record/add">
+            <input type="hidden" name="_csrf" value="{{$d.CSRFToken}}">
+            <div class="col">
+                <label class="form-label mb-1 small text-body-secondary">Record Name (FQDN)</label>
+                <input type="text" class="form-control form-control-sm" name="record_name" placeholder="webapp.{{$d.Domain}}." required>
+            </div>
+            <div class="col-auto">
+                <label class="form-label mb-1 small text-body-secondary">Mode</label>
+                <select class="form-select form-select-sm" name="mode" style="width:130px">
+                    <option value="failover">Failover</option>
+                    <option value="roundrobin">Round Robin</option>
+                    <option value="random">Random</option>
+                    <option value="weighted">Weighted</option>
+                    <option value="geoip">GeoIP</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <label class="form-label mb-1 small text-body-secondary">TTL</label>
+                <input type="number" class="form-control form-control-sm" name="ttl" value="30" style="width:80px" min="1">
+            </div>
+            <div class="col-auto">
+                <label class="form-label mb-1 small text-body-secondary">Scrape</label>
+                <input type="text" class="form-control form-control-sm" name="scrape_interval" value="10s" style="width:80px">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Add</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- GSLB Records -->
+{{range $d.RecordNames}}
+{{$rec := index $d.Config.Records .}}
+<div class="card mb-3">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+            <i class="bi bi-hdd-network"></i> <strong>{{.}}</strong>
+            <span class="badge bg-info ms-2">{{$rec.Mode}}</span>
+            <small class="text-body-secondary ms-2">TTL: {{$rec.RecordTTL}} &middot; Scrape: {{$rec.ScrapeInterval}}</small>
+        </div>
+        <div class="d-flex gap-1">
+            <button class="btn btn-outline-secondary btn-sm py-0 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#settings-{{.}}">
+                <i class="bi bi-gear"></i>
+            </button>
+            <form method="POST" action="/gslb/{{$d.Domain}}/record/delete" class="d-inline"
+                onsubmit="return confirm('Delete record {{.}} and all its backends?');">
+                <input type="hidden" name="_csrf" value="{{$d.CSRFToken}}">
+                <input type="hidden" name="record_name" value="{{.}}">
+                <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-2"><i class="bi bi-trash"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Record Settings (collapsible) -->
+    <div class="collapse" id="settings-{{.}}">
+        <div class="card-body border-bottom bg-body-tertiary">
+            <form class="row g-2 align-items-end" method="POST" action="/gslb/{{$d.Domain}}/record/update">
+                <input type="hidden" name="_csrf" value="{{$d.CSRFToken}}">
+                <input type="hidden" name="record_name" value="{{.}}">
+                <div class="col-auto">
+                    <label class="form-label mb-1 small">Mode</label>
+                    <select class="form-select form-select-sm" name="mode" style="width:130px">
+                        <option value="failover" {{if eq $rec.Mode "failover"}}selected{{end}}>Failover</option>
+                        <option value="roundrobin" {{if eq $rec.Mode "roundrobin"}}selected{{end}}>Round Robin</option>
+                        <option value="random" {{if eq $rec.Mode "random"}}selected{{end}}>Random</option>
+                        <option value="weighted" {{if eq $rec.Mode "weighted"}}selected{{end}}>Weighted</option>
+                        <option value="geoip" {{if eq $rec.Mode "geoip"}}selected{{end}}>GeoIP</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <label class="form-label mb-1 small">TTL</label>
+                    <input type="number" class="form-control form-control-sm" name="ttl" value="{{$rec.RecordTTL}}" style="width:80px" min="1">
+                </div>
+                <div class="col-auto">
+                    <label class="form-label mb-1 small">Scrape Interval</label>
+                    <input type="text" class="form-control form-control-sm" name="scrape_interval" value="{{$rec.ScrapeInterval}}" style="width:80px">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-floppy"></i> Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Backend -->
+    <div class="card-body border-bottom">
+        <form class="row g-2 align-items-end"
+            hx-post="/gslb/{{$d.Domain}}/backend/add"
+            hx-target="#backends-{{.}}"
+            hx-swap="innerHTML"
+            hx-on::after-request="if(event.detail.successful) this.reset()">
+            <input type="hidden" name="_csrf" value="{{$d.CSRFToken}}">
+            <input type="hidden" name="record_name" value="{{.}}">
+            <div class="col">
+                <label class="form-label mb-1 small text-body-secondary">Address</label>
+                <input type="text" class="form-control form-control-sm" name="address" placeholder="192.168.1.10" required>
+            </div>
+            <div class="col-auto">
+                <label class="form-label mb-1 small text-body-secondary">Priority</label>
+                <input type="number" class="form-control form-control-sm" name="priority" placeholder="1" style="width:70px" min="0">
+            </div>
+            <div class="col-auto">
+                <label class="form-label mb-1 small text-body-secondary">Weight</label>
+                <input type="number" class="form-control form-control-sm" name="weight" placeholder="0" style="width:70px" min="0">
+            </div>
+            <div class="col-auto">
+                <label class="form-label mb-1 small text-body-secondary">Location</label>
+                <input type="text" class="form-control form-control-sm" name="location" placeholder="us-east" style="width:100px">
+            </div>
+            <div class="col-auto">
+                <label class="form-label mb-1 small text-body-secondary">Health Check</label>
+                <select class="form-select form-select-sm" name="healthcheck" style="width:140px">
+                    <option value="">None</option>
+                    {{range $pname, $_ := $d.Config.HealthcheckProfiles}}
+                    <option value="{{$pname}}">{{$pname}}</option>
+                    {{end}}
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Add</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Backends Table -->
+    <div id="backends-{{.}}">
+    {{template "gslb_backends_inner" (map "Domain" $d.Domain "RecordName" . "Backends" $rec.Backends "CSRFToken" $d.CSRFToken)}}
+    </div>
+</div>
+{{end}}
+
+<!-- Raw YAML Editor (collapsible) -->
+<div class="mt-3">
+    <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#raw-editor">
+        <i class="bi bi-code-slash"></i> Raw YAML Editor
+    </button>
+    <div class="collapse mt-2" id="raw-editor">
+        <div class="card">
+            <div class="card-body">
+                <form id="raw-form">
+                    <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
+                    <textarea class="form-control editor-textarea mb-2" name="content" rows="20" spellcheck="false">{{$d.Raw}}</textarea>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-info btn-sm"
+                            hx-post="/gslb/{{$d.Domain}}/preview"
+                            hx-include="[name='content']"
+                            hx-target="#preview-area"
+                            hx-swap="innerHTML">
+                            <i class="bi bi-eye"></i> Preview
+                        </button>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="saveRaw(false)">
+                            <i class="bi bi-floppy"></i> Save
+                        </button>
+                        <button type="button" class="btn btn-success btn-sm" onclick="saveRaw(true)">
+                            <i class="bi bi-floppy"></i> Save &amp; Reload
+                        </button>
+                    </div>
+                </form>
+                <div id="preview-area" class="mt-2"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete GSLB Zone -->
+<div class="mt-3 pt-3 border-top">
+    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal">
+        <i class="bi bi-trash"></i> Delete GSLB Zone
+    </button>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete GSLB Zone</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the GSLB config for <strong>{{$d.Domain}}</strong>? This removes the YAML config and all its records/backends.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="/gslb/{{$d.Domain}}/delete" class="d-inline">
+                    <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form id="save-raw-form" method="POST" action="/gslb/{{$d.Domain}}/save" style="display:none;">
+    <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
+    <input type="hidden" name="content" id="save-content">
+    <input type="hidden" name="reload" id="save-reload">
+</form>
+
+<script>
+function saveRaw(reload) {
+    var content = document.querySelector('#raw-form textarea[name="content"]').value;
+    document.getElementById('save-content').value = content;
+    document.getElementById('save-reload').value = reload ? 'true' : 'false';
+    document.getElementById('save-raw-form').submit();
+}
+</script>
+{{end}}

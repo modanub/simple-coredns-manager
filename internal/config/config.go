@@ -12,6 +12,7 @@ import (
 type Config struct {
 	CorefilePath         string
 	ZoneDir              string
+	GSLBDir              string
 	MasterPasswordHash   []byte
 	JWTSecret            []byte
 	CoreDNSContainerName string
@@ -57,6 +58,14 @@ func Load() (*Config, error) {
 		port = "8080"
 	}
 
+	gslbDir := os.Getenv("GSLB_DIR")
+	if gslbDir == "" {
+		gslbDir = zoneDir
+	}
+	if !strings.HasSuffix(gslbDir, "/") {
+		gslbDir += "/"
+	}
+
 	var passwordHash []byte
 	if strings.HasPrefix(masterPassword, "$2a$") || strings.HasPrefix(masterPassword, "$2b$") {
 		passwordHash = []byte(masterPassword)
@@ -71,6 +80,7 @@ func Load() (*Config, error) {
 	return &Config{
 		CorefilePath:         corefilePath,
 		ZoneDir:              zoneDir,
+		GSLBDir:              gslbDir,
 		MasterPasswordHash:   passwordHash,
 		JWTSecret:            []byte(jwtSecret),
 		CoreDNSContainerName: containerName,

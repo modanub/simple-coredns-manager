@@ -58,6 +58,30 @@
     </div>
 </div>
 
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-body-secondary">GSLB Zones</h6>
+                <span class="fs-4 fw-bold">{{$d.GSLBZoneCount}}</span>
+                <div class="mt-2">
+                    <a href="/gslb" class="btn btn-sm btn-outline-primary"><i class="bi bi-diagram-3"></i> Manage</a>
+                    <a href="/gslb/new" class="btn btn-sm btn-outline-success"><i class="bi bi-plus"></i> New</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-body-secondary">GSLB Backends</h6>
+                <span class="fs-4 fw-bold">{{$d.GSLBBackendCount}}</span>
+                <div class="text-body-secondary mt-2"><small>Total backends across all GSLB zones</small></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row g-4">
     <div class="col-md-6">
         <div class="card">

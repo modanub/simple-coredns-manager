@@ -1,0 +1,31 @@
+healthcheck_profiles:
+  http_default:
+    type: http
+    params:
+      port: 80
+      uri: "/"
+      expected_code: 200
+      timeout: 5s
+  https_default:
+    type: http
+    params:
+      enable_tls: true
+      port: 443
+      uri: "/"
+      expected_code: 200
+      timeout: 5s
+
+records:
+  webapp.gslb.example.com.:
+    mode: failover
+    record_ttl: 30
+    scrape_interval: 10s
+    backends:
+      - address: "192.168.1.10"
+        priority: 1
+        healthchecks:
+          - http_default
+      - address: "192.168.1.11"
+        priority: 2
+        healthchecks:
+          - http_default

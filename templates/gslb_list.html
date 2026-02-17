@@ -1,0 +1,34 @@
+{{define "gslb_list"}}
+{{template "base" .}}
+{{end}}
+
+{{define "content"}}
+{{$d := .Data}}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-diagram-3"></i> GSLB Zones</h4>
+    <a href="/gslb/new" class="btn btn-success btn-sm"><i class="bi bi-plus-lg"></i> New GSLB Zone</a>
+</div>
+
+{{if $d.Entries}}
+<div class="list-group">
+    {{range $d.Entries}}
+    <a href="/gslb/{{.Domain}}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+        <div>
+            <i class="bi bi-diagram-3"></i> <strong>{{.Domain}}</strong>
+        </div>
+        <div>
+            <span class="badge bg-primary rounded-pill me-1">{{.RecordCount}} records</span>
+            <span class="badge bg-info rounded-pill">{{.BackendCount}} backends</span>
+        </div>
+    </a>
+    {{end}}
+</div>
+{{else}}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <p class="text-body-secondary mb-3">No GSLB zones found.</p>
+        <a href="/gslb/new" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Create First GSLB Zone</a>
+    </div>
+</div>
+{{end}}
+{{end}}

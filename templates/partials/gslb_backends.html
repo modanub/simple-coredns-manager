@@ -1,0 +1,53 @@
+{{define "gslb_backends_inner"}}
+{{if .Backends}}
+<div class="table-responsive">
+    <table class="table table-hover mb-0">
+        <thead>
+            <tr>
+                <th style="width:40px">#</th>
+                <th>Address</th>
+                <th style="width:70px">Priority</th>
+                <th style="width:70px">Weight</th>
+                <th>Location</th>
+                <th>Health Checks</th>
+                <th style="width:60px"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range $i, $b := .Backends}}
+            <tr{{if $b.Disabled}} class="text-decoration-line-through text-body-secondary"{{end}}>
+                <td><small class="text-body-secondary">{{$i}}</small></td>
+                <td><code>{{$b.Address}}</code></td>
+                <td>{{if $b.Priority}}{{$b.Priority}}{{else}}<small class="text-body-secondary">-</small>{{end}}</td>
+                <td>{{if $b.Weight}}{{$b.Weight}}{{else}}<small class="text-body-secondary">-</small>{{end}}</td>
+                <td>{{if $b.Location}}<span class="badge bg-secondary">{{$b.Location}}</span>{{else}}<small class="text-body-secondary">-</small>{{end}}</td>
+                <td>
+                    {{range $b.Healthchecks}}
+                    <span class="badge bg-success"><i class="bi bi-heart-pulse"></i> {{.}}</span>
+                    {{else}}
+                    <small class="text-body-secondary">none</small>
+                    {{end}}
+                </td>
+                <td>
+                    <form hx-post="/gslb/{{$.Domain}}/backend/delete" hx-target="#backends-{{$.RecordName}}" hx-swap="innerHTML" hx-confirm="Remove backend {{$b.Address}}?">
+                        <input type="hidden" name="_csrf" value="{{$.CSRFToken}}">
+                        <input type="hidden" name="record_name" value="{{$.RecordName}}">
+                        <input type="hidden" name="index" value="{{$i}}">
+                        <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-1"><i class="bi bi-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+</div>
+{{else}}
+<div class="card-body text-center py-3 text-body-secondary">
+    <i class="bi bi-inbox"></i> No backends yet. Add one above.
+</div>
+{{end}}
+{{end}}
+
+{{define "gslb_backends"}}
+{{template "gslb_backends_inner" .}}
+{{end}}

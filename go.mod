@@ -1,6 +1,6 @@
 module simple-coredns-manager
 
-go 1.25.5
+go 1.24.7
 
 require (
 	github.com/docker/docker v28.5.2+incompatible
@@ -10,6 +10,7 @@ require (
 	github.com/miekg/dns v1.1.72
 	golang.org/x/crypto v0.48.0
 	golang.org/x/time v0.14.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (

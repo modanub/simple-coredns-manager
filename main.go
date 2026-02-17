@@ -36,8 +36,9 @@ func main() {
 
 	corefileManager := coredns.NewCorefileManager(cfg.CorefilePath)
 	zoneManager := coredns.NewZoneManager(cfg.ZoneDir)
+	gslbManager := coredns.NewGSLBManager(cfg.GSLBDir)
 
-	h := handlers.NewHandler(cfg, corefileManager, zoneManager, dockerClient)
+	h := handlers.NewHandler(cfg, corefileManager, zoneManager, gslbManager, dockerClient)
 
 	e := echo.New()
 	e.HideBanner = true
@@ -87,6 +88,18 @@ func main() {
 	authed.POST("/zones/:domain/delete", h.ZonesDelete)
 	authed.POST("/zones/:domain/record/add", h.ZonesAddRecord)
 	authed.POST("/zones/:domain/record/delete", h.ZonesRemoveRecord)
+	authed.GET("/gslb", h.GSLBList)
+	authed.GET("/gslb/new", h.GSLBNew)
+	authed.POST("/gslb/create", h.GSLBCreate)
+	authed.GET("/gslb/:domain", h.GSLBEdit)
+	authed.POST("/gslb/:domain/preview", h.GSLBPreview)
+	authed.POST("/gslb/:domain/save", h.GSLBSaveRaw)
+	authed.POST("/gslb/:domain/delete", h.GSLBDelete)
+	authed.POST("/gslb/:domain/record/add", h.GSLBAddRecord)
+	authed.POST("/gslb/:domain/record/delete", h.GSLBRemoveRecord)
+	authed.POST("/gslb/:domain/record/update", h.GSLBUpdateRecord)
+	authed.POST("/gslb/:domain/backend/add", h.GSLBAddBackend)
+	authed.POST("/gslb/:domain/backend/delete", h.GSLBRemoveBackend)
 	authed.GET("/dig", h.DigPage)
 	authed.POST("/dig", h.DigQuery)
 	authed.POST("/reload", h.Reload)
