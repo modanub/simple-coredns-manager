@@ -1,11 +1,13 @@
-. {
-    hosts /etc/coredns/hosts.example.com {
-        fallthrough
-    }
+example.com {
+    file /etc/coredns/db.example.com
+    log
+    errors
+    reload 10s
+}
 
+. {
     forward . 8.8.8.8 8.8.4.4
     cache 30
     log
     errors
-    reload 10s
 }

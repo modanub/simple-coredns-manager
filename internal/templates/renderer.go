@@ -21,8 +21,23 @@ func NewRenderer(templatesDir string) (*Renderer, error) {
 		},
 		"hasPrefix":  strings.HasPrefix,
 		"trimPrefix": strings.TrimPrefix,
-		"isIPv6": func(ip string) bool {
-			return strings.Contains(ip, ":")
+		"typeBadgeColor": func(t string) string {
+			switch t {
+			case "A":
+				return "primary"
+			case "AAAA":
+				return "info"
+			case "CNAME":
+				return "warning"
+			case "MX":
+				return "success"
+			case "TXT":
+				return "secondary"
+			case "NS":
+				return "light"
+			default:
+				return "dark"
+			}
 		},
 	}
 

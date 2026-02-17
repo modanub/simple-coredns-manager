@@ -1,18 +1,18 @@
-{{define "hosts_list"}}
+{{define "zones_list"}}
 {{template "base" .}}
 {{end}}
 
 {{define "content"}}
 {{$d := .Data}}
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="mb-0"><i class="bi bi-globe2"></i> DNS Records</h4>
-    <a href="/hosts/new" class="btn btn-success btn-sm"><i class="bi bi-plus-lg"></i> New Zone</a>
+    <h4 class="mb-0"><i class="bi bi-globe2"></i> DNS Zones</h4>
+    <a href="/zones/new" class="btn btn-success btn-sm"><i class="bi bi-plus-lg"></i> New Zone</a>
 </div>
 
 {{if $d.Domains}}
 <div class="list-group">
     {{range $d.Domains}}
-    <a href="/hosts/{{.Domain}}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+    <a href="/zones/{{.Domain}}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
         <div>
             <i class="bi bi-globe2"></i> <strong>{{.Domain}}</strong>
         </div>
@@ -24,7 +24,7 @@
 <div class="card">
     <div class="card-body text-center py-5">
         <p class="text-body-secondary mb-3">No DNS zones found.</p>
-        <a href="/hosts/new" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Create First Zone</a>
+        <a href="/zones/new" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Create First Zone</a>
     </div>
 </div>
 {{end}}

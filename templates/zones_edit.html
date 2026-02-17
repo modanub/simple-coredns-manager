@@ -1,4 +1,4 @@
-{{define "hosts_edit"}}
+{{define "zones_edit"}}
 {{template "base" .}}
 {{end}}
 
@@ -7,7 +7,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="mb-0"><i class="bi bi-globe2"></i> {{$d.Domain}}</h4>
     <div>
-        <a href="/hosts" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Back</a>
+        <a href="/zones" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Back</a>
         <form method="POST" action="/reload" class="d-inline ms-1">
             <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
             <button type="submit" class="btn btn-warning btn-sm"><i class="bi bi-arrow-clockwise"></i> Reload CoreDNS</button>
@@ -15,29 +15,55 @@
     </div>
 </div>
 
+{{if $d.SOA}}
+<div class="card mb-3">
+    <div class="card-header"><i class="bi bi-info-circle"></i> SOA</div>
+    <div class="card-body py-2">
+        <small class="text-body-secondary">
+            Serial: <strong>{{$d.SOA.Serial}}</strong> &middot;
+            Primary NS: <code>{{$d.SOA.MName}}</code> &middot;
+            Admin: <code>{{$d.SOA.RName}}</code>
+        </small>
+    </div>
+</div>
+{{end}}
+
 <!-- Add Record Form -->
 <div class="card mb-3">
     <div class="card-header"><i class="bi bi-plus-circle"></i> Add Record</div>
     <div class="card-body">
-        <form class="row g-2 align-items-end"
-            hx-post="/hosts/{{$d.Domain}}/entry/add"
+        <form class="row g-2 align-items-end" id="add-record-form"
+            hx-post="/zones/{{$d.Domain}}/record/add"
             hx-target="#records-container"
             hx-swap="innerHTML"
             hx-on::after-request="if(event.detail.successful) this.reset()">
             <input type="hidden" name="_csrf" value="{{$d.CSRFToken}}">
             <div class="col-auto">
                 <label class="form-label mb-1 small text-body-secondary">Type</label>
-                <select class="form-select form-select-sm" style="width:80px" disabled>
-                    <option>A</option>
+                <select class="form-select form-select-sm" name="type" id="record-type" style="width:100px" onchange="togglePriority()">
+                    <option value="A">A</option>
+                    <option value="AAAA">AAAA</option>
+                    <option value="CNAME">CNAME</option>
+                    <option value="MX">MX</option>
+                    <option value="TXT">TXT</option>
+                    <option value="NS">NS</option>
                 </select>
             </div>
             <div class="col">
-                <label class="form-label mb-1 small text-body-secondary">Hostname</label>
-                <input type="text" class="form-control form-control-sm" name="hostname" placeholder="app.{{$d.Domain}}" required>
+                <label class="form-label mb-1 small text-body-secondary">Name</label>
+                <input type="text" class="form-control form-control-sm" name="name" placeholder="@ or subdomain" required>
             </div>
             <div class="col">
-                <label class="form-label mb-1 small text-body-secondary">IP Address</label>
-                <input type="text" class="form-control form-control-sm" name="ip" placeholder="192.168.1.10" required>
+                <label class="form-label mb-1 small text-body-secondary">Value</label>
+                <input type="text" class="form-control form-control-sm" name="value" placeholder="192.168.1.10" required>
+            </div>
+            <div class="col-auto" id="ttl-col">
+                <label class="form-label mb-1 small text-body-secondary">TTL</label>
+                <input type="number" class="form-control form-control-sm" name="ttl" placeholder="3600" style="width:80px" min="0">
+            </div>
+            <div class="col-auto" id="priority-col" style="display:none;">
+                <label class="form-label mb-1 small text-body-secondary">Priority</label>
+                <input type="number" class="form-control form-control-sm" name="priority" placeholder="10" style="width:80px" min="0" max="65535">
             </div>
             <div class="col-auto">
                 <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Add</button>
@@ -61,10 +87,10 @@
             <div class="card-body">
                 <form id="raw-form">
                     <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
-                    <textarea class="form-control editor-textarea mb-2" name="content" rows="10" spellcheck="false">{{$d.Raw}}</textarea>
+                    <textarea class="form-control editor-textarea mb-2" name="content" rows="15" spellcheck="false">{{$d.Raw}}</textarea>
                     <div class="d-flex gap-2">
                         <button type="button" class="btn btn-outline-info btn-sm"
-                            hx-post="/hosts/{{$d.Domain}}/preview"
+                            hx-post="/zones/{{$d.Domain}}/preview"
                             hx-include="[name='content']"
                             hx-target="#preview-area"
                             hx-swap="innerHTML">
@@ -100,11 +126,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                Are you sure you want to delete <strong>{{$d.Domain}}</strong>? This removes the host file and all its records.
+                Are you sure you want to delete <strong>{{$d.Domain}}</strong>? This removes the zone file and all its records.
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form method="POST" action="/hosts/{{$d.Domain}}/delete" class="d-inline">
+                <form method="POST" action="/zones/{{$d.Domain}}/delete" class="d-inline">
                     <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
                     <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Delete</button>
                 </form>
@@ -113,7 +139,7 @@
     </div>
 </div>
 
-<form id="save-raw-form" method="POST" action="/hosts/{{$d.Domain}}/save" style="display:none;">
+<form id="save-raw-form" method="POST" action="/zones/{{$d.Domain}}/save" style="display:none;">
     <input type="hidden" name="_csrf" value="{{.CSRFToken}}">
     <input type="hidden" name="content" id="save-content">
     <input type="hidden" name="reload" id="save-reload">
@@ -126,6 +152,9 @@ function saveRaw(reload) {
     document.getElementById('save-reload').value = reload ? 'true' : 'false';
     document.getElementById('save-raw-form').submit();
 }
+function togglePriority() {
+    var type = document.getElementById('record-type').value;
+    document.getElementById('priority-col').style.display = type === 'MX' ? '' : 'none';
+}
 </script>
 {{end}}
-

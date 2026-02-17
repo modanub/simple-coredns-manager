@@ -11,7 +11,7 @@ import (
 
 type Config struct {
 	CorefilePath         string
-	HostsDir             string
+	ZoneDir              string
 	MasterPasswordHash   []byte
 	JWTSecret            []byte
 	CoreDNSContainerName string
@@ -24,13 +24,17 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("COREFILE_PATH is required")
 	}
 
-	hostsDir := os.Getenv("HOSTS_DIR")
-	if hostsDir == "" {
-		// Default to same directory as the Corefile
-		hostsDir = filepath.Dir(corefilePath)
+	zoneDir := os.Getenv("ZONE_DIR")
+	if zoneDir == "" {
+		// Fall back to HOSTS_DIR for backward compatibility
+		zoneDir = os.Getenv("HOSTS_DIR")
 	}
-	if !strings.HasSuffix(hostsDir, "/") {
-		hostsDir += "/"
+	if zoneDir == "" {
+		// Default to same directory as the Corefile
+		zoneDir = filepath.Dir(corefilePath)
+	}
+	if !strings.HasSuffix(zoneDir, "/") {
+		zoneDir += "/"
 	}
 
 	masterPassword := os.Getenv("MASTER_PASSWORD")
@@ -66,7 +70,7 @@ func Load() (*Config, error) {
 
 	return &Config{
 		CorefilePath:         corefilePath,
-		HostsDir:             hostsDir,
+		ZoneDir:              zoneDir,
 		MasterPasswordHash:   passwordHash,
 		JWTSecret:            []byte(jwtSecret),
 		CoreDNSContainerName: containerName,

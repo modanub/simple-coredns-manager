@@ -10,8 +10,8 @@ type DashboardData struct {
 	CoreDNSStatus  string
 	ContainerID    string
 	DockerOK       bool
-	HostFileCount  int
-	HostFiles      []string
+	ZoneFileCount  int
+	ZoneFiles      []string
 	CorefileExists bool
 }
 
@@ -36,13 +36,13 @@ func (h *Handler) Dashboard(c echo.Context) error {
 	_, err = h.Corefile.Read()
 	dd.CorefileExists = err == nil
 
-	// List host files
+	// List zone files
 	h.mu.RLock()
-	hosts, err := h.Hosts.List()
+	zones, err := h.Zones.List()
 	h.mu.RUnlock()
 	if err == nil {
-		dd.HostFiles = hosts
-		dd.HostFileCount = len(hosts)
+		dd.ZoneFiles = zones
+		dd.ZoneFileCount = len(zones)
 	}
 
 	pd := h.page(c, "Dashboard", "dashboard", dd)

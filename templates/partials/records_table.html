@@ -1,26 +1,29 @@
 {{define "records_table"}}
-{{if .Entries}}
+{{if .Records}}
 <div class="table-responsive">
     <table class="table table-hover mb-0">
         <thead>
             <tr>
-                <th style="width:70px">Type</th>
+                <th style="width:80px">Type</th>
                 <th>Name</th>
-                <th>Content</th>
+                <th>Value</th>
+                <th style="width:70px">TTL</th>
                 <th style="width:70px"></th>
             </tr>
         </thead>
         <tbody>
-            {{range .Entries}}
+            {{range .Records}}
             <tr>
-                <td>{{if isIPv6 .IP}}<span class="badge bg-info">AAAA</span>{{else}}<span class="badge bg-primary">A</span>{{end}}</td>
-                <td><code>{{.Hostname}}</code></td>
-                <td><code>{{.IP}}</code></td>
+                <td><span class="badge bg-{{typeBadgeColor (print .Type)}}">{{.Type}}</span></td>
+                <td><code>{{.Name}}</code></td>
+                <td><code>{{if eq (print .Type) "MX"}}{{.Priority}} {{end}}{{.Value}}</code></td>
+                <td><small class="text-body-secondary">{{.TTL}}</small></td>
                 <td>
-                    <form hx-post="/hosts/{{$.Domain}}/entry/delete" hx-target="#records-container" hx-swap="innerHTML" hx-confirm="Delete {{.Hostname}}?">
+                    <form hx-post="/zones/{{$.Domain}}/record/delete" hx-target="#records-container" hx-swap="innerHTML" hx-confirm="Delete {{.Name}} {{.Type}} record?">
                         <input type="hidden" name="_csrf" value="{{$.CSRFToken}}">
-                        <input type="hidden" name="ip" value="{{.IP}}">
-                        <input type="hidden" name="hostname" value="{{.Hostname}}">
+                        <input type="hidden" name="name" value="{{.Name}}">
+                        <input type="hidden" name="type" value="{{.Type}}">
+                        <input type="hidden" name="value" value="{{.Value}}">
                         <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-1"><i class="bi bi-trash"></i></button>
                     </form>
                 </td>

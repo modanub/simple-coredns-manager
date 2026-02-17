@@ -48,10 +48,10 @@
         <div class="card h-100">
             <div class="card-body">
                 <h6 class="card-subtitle mb-2 text-body-secondary">DNS Zones</h6>
-                <span class="fs-4 fw-bold">{{$d.HostFileCount}}</span>
+                <span class="fs-4 fw-bold">{{$d.ZoneFileCount}}</span>
                 <div class="mt-2">
-                    <a href="/hosts" class="btn btn-sm btn-outline-primary"><i class="bi bi-globe2"></i> Manage</a>
-                    <a href="/hosts/new" class="btn btn-sm btn-outline-success"><i class="bi bi-plus"></i> New</a>
+                    <a href="/zones" class="btn btn-sm btn-outline-primary"><i class="bi bi-globe2"></i> Manage</a>
+                    <a href="/zones/new" class="btn btn-sm btn-outline-success"><i class="bi bi-plus"></i> New</a>
                 </div>
             </div>
         </div>
@@ -83,16 +83,16 @@
         <div class="card">
             <div class="card-header"><i class="bi bi-globe2"></i> DNS Zones</div>
             <div class="card-body">
-                {{if $d.HostFiles}}
+                {{if $d.ZoneFiles}}
                 <ul class="list-group list-group-flush">
-                    {{range $d.HostFiles}}
+                    {{range $d.ZoneFiles}}
                     <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
-                        <a href="/hosts/{{.}}">{{.}}</a>
+                        <a href="/zones/{{.}}">{{.}}</a>
                     </li>
                     {{end}}
                 </ul>
                 {{else}}
-                <p class="text-body-secondary mb-0">No DNS zones yet. <a href="/hosts/new">Create one</a>.</p>
+                <p class="text-body-secondary mb-0">No DNS zones yet. <a href="/zones/new">Create one</a>.</p>
                 {{end}}
             </div>
         </div>

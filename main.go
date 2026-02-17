@@ -35,9 +35,9 @@ func main() {
 	}
 
 	corefileManager := coredns.NewCorefileManager(cfg.CorefilePath)
-	hostsManager := coredns.NewHostsManager(cfg.HostsDir)
+	zoneManager := coredns.NewZoneManager(cfg.ZoneDir)
 
-	h := handlers.NewHandler(cfg, corefileManager, hostsManager, dockerClient)
+	h := handlers.NewHandler(cfg, corefileManager, zoneManager, dockerClient)
 
 	e := echo.New()
 	e.HideBanner = true
@@ -79,14 +79,14 @@ func main() {
 	authed.GET("/corefile", h.CorefileEdit)
 	authed.POST("/corefile/preview", h.CorefilePreview)
 	authed.POST("/corefile/save", h.CorefileSave)
-	authed.GET("/hosts", h.HostsList)
-	authed.GET("/hosts/new", h.HostsNew)
-	authed.GET("/hosts/:domain", h.HostsEdit)
-	authed.POST("/hosts/:domain/preview", h.HostsPreview)
-	authed.POST("/hosts/:domain/save", h.HostsSave)
-	authed.POST("/hosts/:domain/delete", h.HostsDelete)
-	authed.POST("/hosts/:domain/entry/add", h.HostsAddEntry)
-	authed.POST("/hosts/:domain/entry/delete", h.HostsRemoveEntry)
+	authed.GET("/zones", h.ZonesList)
+	authed.GET("/zones/new", h.ZonesNew)
+	authed.GET("/zones/:domain", h.ZonesEdit)
+	authed.POST("/zones/:domain/preview", h.ZonesPreview)
+	authed.POST("/zones/:domain/save", h.ZonesSave)
+	authed.POST("/zones/:domain/delete", h.ZonesDelete)
+	authed.POST("/zones/:domain/record/add", h.ZonesAddRecord)
+	authed.POST("/zones/:domain/record/delete", h.ZonesRemoveRecord)
 	authed.GET("/dig", h.DigPage)
 	authed.POST("/dig", h.DigQuery)
 	authed.POST("/reload", h.Reload)
